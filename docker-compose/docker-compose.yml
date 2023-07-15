@@ -1,14 +1,20 @@
 version: '3'
 
 services:
-  app:
+  chatgpt-web-app:
     container_name: chatgpt-web
-    image: chenzhaoyu94/chatgpt-web # 总是使用latest,更新时重新pull该tag镜像即可
+    # Build locally (required 4GB+ RAM)
+    # Comment this line to use the built image from docker.io
+    build: ../
+    # Use built image from docker.io
+    # image: chenzhaoyu94/chatgpt-web # 总是使用latest,更新时重新pull该tag镜像即可
+    # Use local image 
+    image: rikkaneko/chatgpt-web # 总是使用latest,更新时重新pull该tag镜像即可
     ports:
       - 3002:3002
     environment:
       # 二选一
-      OPENAI_API_KEY:
+      OPENAI_API_KEY: 
       # 二选一
       OPENAI_ACCESS_TOKEN:
       # API接口地址，可选，设置 OPENAI_API_KEY 时可用
@@ -18,7 +24,7 @@ services:
       # 反向代理，可选
       API_REVERSE_PROXY:
       # 访问权限密钥，可选
-      AUTH_SECRET_KEY:
+      AUTH_SECRET_KEY: 
       # 每小时最大请求次数，可选，默认无限
       MAX_REQUEST_PER_HOUR: 0
       # 超时，单位毫秒，可选
@@ -33,15 +39,22 @@ services:
       SOCKS_PROXY_PASSWORD:
       # HTTPS_PROXY 代理，可选
       HTTPS_PROXY:
-  nginx:
-    container_name: nginx
-    image: nginx:alpine
-    ports:
-      - '80:80'
-    expose:
-      - '80'
-    volumes:
-      - ./nginx/html:/usr/share/nginx/html
-      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
-    links:
-      - app
+  
+  # chatgpt-web-nginx:
+  #   container_name: nginx
+  #   image: nginx:alpine
+  #   ports:
+  #     - '8080:80'
+  #   expose:
+  #     - '80'
+  #   volumes:
+  #     - ./nginx/html:/usr/share/nginx/html
+  #     - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf
+  #   links:
+  #     - chatgpt-web-app
+
+networks:
+  default:
+    name: chatgpt-web-net
+    # Uncomment to attach into existing network
+    # external: true
