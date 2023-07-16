@@ -1,5 +1,5 @@
 <script lang="ts" setup>
-import { computed, ref } from 'vue'
+import { computed, onMounted, ref } from 'vue'
 import { NButton, NInput, NPopconfirm, NSelect, useMessage } from 'naive-ui'
 import type { Language, Theme } from '@/store/modules/app/helper'
 import { SvgIcon } from '@/components/common'
@@ -8,6 +8,11 @@ import type { UserInfo } from '@/store/modules/user/helper'
 import { getCurrentDate } from '@/utils/functions'
 import { useBasicLayout } from '@/hooks/useBasicLayout'
 import { t } from '@/locales'
+import { fetchLogoutURL } from '@/api'
+
+interface LogoutURLResponse {
+  url?: string
+}
 
 const appStore = useAppStore()
 const userStore = useUserStore()
@@ -15,6 +20,10 @@ const userStore = useUserStore()
 const { isMobile } = useBasicLayout()
 
 const ms = useMessage()
+
+const logoutURL = ref<LogoutURLResponse>()
+
+const hasLogoutURL = computed(() => !!logoutURL.value?.url)
 
 const theme = computed(() => appStore.theme)
 
@@ -120,6 +129,23 @@ function handleImportButtonClick(): void {
   if (fileInput)
     fileInput.click()
 }
+
+function handleLogoutURLButtonClick(): void {
+  if (logoutURL.value?.url)
+    window.location.href = logoutURL.value.url
+}
+
+async function fetchURL() {
+  try {
+    const { data } = await fetchLogoutURL<LogoutURLResponse>()
+    logoutURL.value = data
+  }
+  catch (error) {}
+}
+
+onMounted(() => {
+  fetchURL()
+})
 </script>
 
 <template>
@@ -218,6 +244,9 @@ function handleImportButtonClick(): void {
         <span class="flex-shrink-0 w-[100px]">{{ $t('setting.resetUserInfo') }}</span>
         <NButton size="small" @click="handleReset">
           {{ $t('common.reset') }}
+        </NButton>
+        <NButton v-if="hasLogoutURL" size="small" @click="handleLogoutURLButtonClick">
+          {{ $t('common.logout') }}
         </NButton>
       </div>
     </div>

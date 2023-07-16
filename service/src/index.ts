@@ -82,6 +82,18 @@ router.post('/verify', async (req, res) => {
   }
 })
 
+router.post('/get_logout_url', async (req, res) => {
+  try {
+    const logout_callback_url = process.env.LOGOUT_CALLBACK_URL ?? null
+    // WTF?? Who would ever use { status: 'Success' | 'Fail', data: {...}} response
+    // and reject your request if not using these fields?
+    res.send({ status: 'Success', data: { url: logout_callback_url } })
+  }
+  catch (error) {
+    res.send({ status: 'Fail' })
+  }
+})
+
 app.use('', router)
 app.use('/api', router)
 app.set('trust proxy', 1)

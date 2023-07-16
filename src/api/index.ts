@@ -64,3 +64,9 @@ export function fetchVerify<T>(token: string) {
     data: { token },
   })
 }
+
+export function fetchLogoutURL<T = any>() {
+  return post<T>({
+    url: '/get_logout_url',
+  })
+}
